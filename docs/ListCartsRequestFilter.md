@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **customer_lastnames**| **List[str]** |   | [optional]
 **customer_phones**| **List[str]** |   | [optional]
 **cart_ids**| **List[str]** |   | [optional]
-**cart_status**| [**ListCartsRequestFilterCartStatus**](ListCartsRequestFilterCartStatus.md) |  for more information please, see Model/ListCartsRequestFilterCartStatus.php  | [optional]
+**cart_status**| [**ListCartsRequestFilterCartStatus**](ListCartsRequestFilterCartStatus.md) |  for more information please, see Model/ListCartsRequestFilterCartStatus.php  | [optional] [default to ListCartsRequestFilterCartStatus.UNKNOWN]
 **created_at**| [**List[ListCartsRequestFilterDate]**](ListCartsRequestFilterDate.md) |   | [optional]
 **agent_grn**| **str** |   | [optional]
 

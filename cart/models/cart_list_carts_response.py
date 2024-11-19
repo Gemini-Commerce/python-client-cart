@@ -18,15 +18,11 @@ import pprint
 import re  # noqa: F401
 import json
 
-
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from pydantic import BaseModel, StrictStr
-from pydantic import Field
 from cart.models.cart_cart_data import CartCartData
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
+from typing import Optional, Set
+from typing_extensions import Self
 
 class CartListCartsResponse(BaseModel):
     """
@@ -34,13 +30,14 @@ class CartListCartsResponse(BaseModel):
     """ # noqa: E501
     carts: Optional[List[CartCartData]] = None
     next_page_token: Optional[StrictStr] = Field(default=None, alias="nextPageToken")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["carts", "nextPageToken"]
 
-    model_config = {
-        "populate_by_name": True,
-        "validate_assignment": True,
-        "protected_namespaces": (),
-    }
+    model_config = ConfigDict(
+        populate_by_name=True,
+        validate_assignment=True,
+        protected_namespaces=(),
+    )
 
 
     def to_str(self) -> str:
@@ -53,7 +50,7 @@ class CartListCartsResponse(BaseModel):
         return json.dumps(self.to_dict())
 
     @classmethod
-    def from_json(cls, json_str: str) -> Self:
+    def from_json(cls, json_str: str) -> Optional[Self]:
         """Create an instance of CartListCartsResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
@@ -66,24 +63,33 @@ class CartListCartsResponse(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
+        excluded_fields: Set[str] = set([
+            "additional_properties",
+        ])
+
         _dict = self.model_dump(
             by_alias=True,
-            exclude={
-            },
+            exclude=excluded_fields,
             exclude_none=True,
         )
         # override the default output from pydantic by calling `to_dict()` of each item in carts (list)
         _items = []
         if self.carts:
-            for _item in self.carts:
-                if _item:
-                    _items.append(_item.to_dict())
+            for _item_carts in self.carts:
+                if _item_carts:
+                    _items.append(_item_carts.to_dict())
             _dict['carts'] = _items
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: Dict) -> Self:
+    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
         """Create an instance of CartListCartsResponse from a dict"""
         if obj is None:
             return None
@@ -92,9 +98,14 @@ class CartListCartsResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "carts": [CartCartData.from_dict(_item) for _item in obj.get("carts")] if obj.get("carts") is not None else None,
+            "carts": [CartCartData.from_dict(_item) for _item in obj["carts"]] if obj.get("carts") is not None else None,
             "nextPageToken": obj.get("nextPageToken")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

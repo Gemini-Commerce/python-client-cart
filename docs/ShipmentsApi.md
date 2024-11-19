@@ -20,8 +20,6 @@ List shipment methods
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_list_shipment_methods_request import CartListShipmentMethodsRequest
 from cart.models.cart_list_shipment_methods_response import CartListShipmentMethodsResponse
@@ -107,8 +105,6 @@ Set shipments
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_set_shipments_request import CartSetShipmentsRequest
 from cart.rest import ApiException

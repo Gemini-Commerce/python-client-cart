@@ -20,8 +20,6 @@ Set billing address
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_set_billing_address_request import CartSetBillingAddressRequest
 from cart.rest import ApiException
@@ -106,8 +104,6 @@ Set shipment address
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_set_shipment_address_request import CartSetShipmentAddressRequest
 from cart.rest import ApiException

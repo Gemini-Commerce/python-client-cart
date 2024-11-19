@@ -30,8 +30,6 @@ This endpoint allows you to add products to a shopping cart. The AddProducts met
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_add_products_request import CartAddProductsRequest
 from cart.models.cart_add_products_response import CartAddProductsResponse
@@ -114,8 +112,6 @@ The CreateCart endpoint allows users to create a new cart for their shopping ses
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_create_cart_request import CartCreateCartRequest
 from cart.models.cart_create_cart_response import CartCreateCartResponse
@@ -198,8 +194,6 @@ Get the active cart by customer
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_get_active_cart_by_customer_request import CartGetActiveCartByCustomerRequest
 from cart.models.cart_get_active_cart_by_customer_response import CartGetActiveCartByCustomerResponse
@@ -282,8 +276,6 @@ Get the cart
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_get_cart_request import CartGetCartRequest
 from cart.models.cart_get_cart_response import CartGetCartResponse
@@ -366,8 +358,6 @@ List all carts
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_list_carts_request import CartListCartsRequest
 from cart.models.cart_list_carts_response import CartListCartsResponse
@@ -450,8 +440,6 @@ Merge carts
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_merge_carts_request import CartMergeCartsRequest
 from cart.models.cart_merge_carts_response import CartMergeCartsResponse
@@ -535,8 +523,6 @@ Remove products from the cart
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_remove_products_request import CartRemoveProductsRequest
 from cart.rest import ApiException
@@ -618,8 +604,6 @@ Set additional info
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_set_additional_info_request import CartSetAdditionalInfoRequest
 from cart.rest import ApiException
@@ -704,8 +688,6 @@ Set notes
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_set_notes_request import CartSetNotesRequest
 from cart.rest import ApiException
@@ -790,8 +772,6 @@ Trigger realignment
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_trigger_realignment_request import CartTriggerRealignmentRequest
 from cart.models.cart_trigger_realignment_response import CartTriggerRealignmentResponse
@@ -877,8 +857,6 @@ Update the cart
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_update_cart_request import CartUpdateCartRequest
 from cart.rest import ApiException
@@ -960,8 +938,6 @@ Update products in the cart
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_update_products_request import CartUpdateProductsRequest
 from cart.rest import ApiException

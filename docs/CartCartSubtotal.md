@@ -6,7 +6,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**code**| [**CartSubtotalCode**](CartSubtotalCode.md) |  for more information please, see Model/CartSubtotalCode.php  | [optional]
+**code**| [**CartSubtotalCode**](CartSubtotalCode.md) |  for more information please, see Model/CartSubtotalCode.php  | [optional] [default to CartSubtotalCode.UNKNOWN]
 **value**| [**CartMoney**](CartMoney.md) |   | [optional]
 
 

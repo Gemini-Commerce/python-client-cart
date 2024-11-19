@@ -20,8 +20,6 @@ Apply coupons to the cart
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_apply_coupons_request import CartApplyCouponsRequest
 from cart.rest import ApiException
@@ -104,8 +102,6 @@ Remove coupons from the cart
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_remove_coupons_request import CartRemoveCouponsRequest
 from cart.rest import ApiException

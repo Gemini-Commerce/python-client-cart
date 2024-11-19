@@ -18,15 +18,11 @@ import pprint
 import re  # noqa: F401
 import json
 
-
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
-from pydantic import BaseModel, StrictBool, StrictFloat, StrictInt, StrictStr
-from pydantic import Field
 from cart.models.cart_money import CartMoney
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
+from typing import Optional, Set
+from typing_extensions import Self
 
 class CartSetCustomPriceOnItemsRequestCartItem(BaseModel):
     """
@@ -38,13 +34,14 @@ class CartSetCustomPriceOnItemsRequestCartItem(BaseModel):
     custom_price_row: Optional[CartMoney] = Field(default=None, alias="customPriceRow")
     custom_price_unit: Optional[CartMoney] = Field(default=None, alias="customPriceUnit")
     discount_percentage: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, alias="discountPercentage")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "freeOfCharge", "unset", "customPriceRow", "customPriceUnit", "discountPercentage"]
 
-    model_config = {
-        "populate_by_name": True,
-        "validate_assignment": True,
-        "protected_namespaces": (),
-    }
+    model_config = ConfigDict(
+        populate_by_name=True,
+        validate_assignment=True,
+        protected_namespaces=(),
+    )
 
 
     def to_str(self) -> str:
@@ -57,7 +54,7 @@ class CartSetCustomPriceOnItemsRequestCartItem(BaseModel):
         return json.dumps(self.to_dict())
 
     @classmethod
-    def from_json(cls, json_str: str) -> Self:
+    def from_json(cls, json_str: str) -> Optional[Self]:
         """Create an instance of CartSetCustomPriceOnItemsRequestCartItem from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
@@ -70,11 +67,15 @@ class CartSetCustomPriceOnItemsRequestCartItem(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
+        excluded_fields: Set[str] = set([
+            "additional_properties",
+        ])
+
         _dict = self.model_dump(
             by_alias=True,
-            exclude={
-            },
+            exclude=excluded_fields,
             exclude_none=True,
         )
         # override the default output from pydantic by calling `to_dict()` of custom_price_row
@@ -83,10 +84,15 @@ class CartSetCustomPriceOnItemsRequestCartItem(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of custom_price_unit
         if self.custom_price_unit:
             _dict['customPriceUnit'] = self.custom_price_unit.to_dict()
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: Dict) -> Self:
+    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
         """Create an instance of CartSetCustomPriceOnItemsRequestCartItem from a dict"""
         if obj is None:
             return None
@@ -98,10 +104,15 @@ class CartSetCustomPriceOnItemsRequestCartItem(BaseModel):
             "id": obj.get("id"),
             "freeOfCharge": obj.get("freeOfCharge"),
             "unset": obj.get("unset"),
-            "customPriceRow": CartMoney.from_dict(obj.get("customPriceRow")) if obj.get("customPriceRow") is not None else None,
-            "customPriceUnit": CartMoney.from_dict(obj.get("customPriceUnit")) if obj.get("customPriceUnit") is not None else None,
+            "customPriceRow": CartMoney.from_dict(obj["customPriceRow"]) if obj.get("customPriceRow") is not None else None,
+            "customPriceUnit": CartMoney.from_dict(obj["customPriceUnit"]) if obj.get("customPriceUnit") is not None else None,
             "discountPercentage": obj.get("discountPercentage")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

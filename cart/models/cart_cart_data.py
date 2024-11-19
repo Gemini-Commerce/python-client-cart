@@ -19,9 +19,8 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from pydantic import BaseModel, StrictBool, StrictStr
-from pydantic import Field
 from cart.models.cart_cart_item import CartCartItem
 from cart.models.cart_cart_status import CartCartStatus
 from cart.models.cart_cart_subtotal import CartCartSubtotal
@@ -32,10 +31,8 @@ from cart.models.cart_payment_data import CartPaymentData
 from cart.models.cart_postal_address import CartPostalAddress
 from cart.models.cart_promotion_data import CartPromotionData
 from cart.models.cart_shipment_data import CartShipmentData
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
+from typing import Optional, Set
+from typing_extensions import Self
 
 class CartCartData(BaseModel):
     """
@@ -50,25 +47,26 @@ class CartCartData(BaseModel):
     payments: Optional[List[CartPaymentData]] = None
     shipments: Optional[List[CartShipmentData]] = None
     promotions: Optional[List[CartPromotionData]] = None
-    currency: Optional[CartCurrency] = None
+    currency: Optional[CartCurrency] = CartCurrency.XXX
     subtotals: Optional[List[CartCartSubtotal]] = None
     total: Optional[CartMoney] = None
     total_due: Optional[CartMoney] = Field(default=None, alias="totalDue")
     vat_included: Optional[StrictBool] = Field(default=None, alias="vatIncluded")
     billing_address: Optional[CartPostalAddress] = Field(default=None, alias="billingAddress")
     shipping_address: Optional[CartPostalAddress] = Field(default=None, alias="shippingAddress")
-    status: Optional[CartCartStatus] = None
+    status: Optional[CartCartStatus] = CartCartStatus.UNKNOWN
     customer: Optional[CartCustomerData] = None
     notes: Optional[StrictStr] = None
     created_at: Optional[datetime] = Field(default=None, alias="createdAt")
     updated_at: Optional[datetime] = Field(default=None, alias="updatedAt")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "grn", "channel", "market", "locale", "items", "payments", "shipments", "promotions", "currency", "subtotals", "total", "totalDue", "vatIncluded", "billingAddress", "shippingAddress", "status", "customer", "notes", "createdAt", "updatedAt"]
 
-    model_config = {
-        "populate_by_name": True,
-        "validate_assignment": True,
-        "protected_namespaces": (),
-    }
+    model_config = ConfigDict(
+        populate_by_name=True,
+        validate_assignment=True,
+        protected_namespaces=(),
+    )
 
 
     def to_str(self) -> str:
@@ -81,7 +79,7 @@ class CartCartData(BaseModel):
         return json.dumps(self.to_dict())
 
     @classmethod
-    def from_json(cls, json_str: str) -> Self:
+    def from_json(cls, json_str: str) -> Optional[Self]:
         """Create an instance of CartCartData from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
@@ -94,47 +92,51 @@ class CartCartData(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
+        excluded_fields: Set[str] = set([
+            "additional_properties",
+        ])
+
         _dict = self.model_dump(
             by_alias=True,
-            exclude={
-            },
+            exclude=excluded_fields,
             exclude_none=True,
         )
         # override the default output from pydantic by calling `to_dict()` of each item in items (list)
         _items = []
         if self.items:
-            for _item in self.items:
-                if _item:
-                    _items.append(_item.to_dict())
+            for _item_items in self.items:
+                if _item_items:
+                    _items.append(_item_items.to_dict())
             _dict['items'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in payments (list)
         _items = []
         if self.payments:
-            for _item in self.payments:
-                if _item:
-                    _items.append(_item.to_dict())
+            for _item_payments in self.payments:
+                if _item_payments:
+                    _items.append(_item_payments.to_dict())
             _dict['payments'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in shipments (list)
         _items = []
         if self.shipments:
-            for _item in self.shipments:
-                if _item:
-                    _items.append(_item.to_dict())
+            for _item_shipments in self.shipments:
+                if _item_shipments:
+                    _items.append(_item_shipments.to_dict())
             _dict['shipments'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in promotions (list)
         _items = []
         if self.promotions:
-            for _item in self.promotions:
-                if _item:
-                    _items.append(_item.to_dict())
+            for _item_promotions in self.promotions:
+                if _item_promotions:
+                    _items.append(_item_promotions.to_dict())
             _dict['promotions'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in subtotals (list)
         _items = []
         if self.subtotals:
-            for _item in self.subtotals:
-                if _item:
-                    _items.append(_item.to_dict())
+            for _item_subtotals in self.subtotals:
+                if _item_subtotals:
+                    _items.append(_item_subtotals.to_dict())
             _dict['subtotals'] = _items
         # override the default output from pydantic by calling `to_dict()` of total
         if self.total:
@@ -151,10 +153,15 @@ class CartCartData(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of customer
         if self.customer:
             _dict['customer'] = self.customer.to_dict()
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: Dict) -> Self:
+    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
         """Create an instance of CartCartData from a dict"""
         if obj is None:
             return None
@@ -168,23 +175,28 @@ class CartCartData(BaseModel):
             "channel": obj.get("channel"),
             "market": obj.get("market"),
             "locale": obj.get("locale"),
-            "items": [CartCartItem.from_dict(_item) for _item in obj.get("items")] if obj.get("items") is not None else None,
-            "payments": [CartPaymentData.from_dict(_item) for _item in obj.get("payments")] if obj.get("payments") is not None else None,
-            "shipments": [CartShipmentData.from_dict(_item) for _item in obj.get("shipments")] if obj.get("shipments") is not None else None,
-            "promotions": [CartPromotionData.from_dict(_item) for _item in obj.get("promotions")] if obj.get("promotions") is not None else None,
-            "currency": obj.get("currency"),
-            "subtotals": [CartCartSubtotal.from_dict(_item) for _item in obj.get("subtotals")] if obj.get("subtotals") is not None else None,
-            "total": CartMoney.from_dict(obj.get("total")) if obj.get("total") is not None else None,
-            "totalDue": CartMoney.from_dict(obj.get("totalDue")) if obj.get("totalDue") is not None else None,
+            "items": [CartCartItem.from_dict(_item) for _item in obj["items"]] if obj.get("items") is not None else None,
+            "payments": [CartPaymentData.from_dict(_item) for _item in obj["payments"]] if obj.get("payments") is not None else None,
+            "shipments": [CartShipmentData.from_dict(_item) for _item in obj["shipments"]] if obj.get("shipments") is not None else None,
+            "promotions": [CartPromotionData.from_dict(_item) for _item in obj["promotions"]] if obj.get("promotions") is not None else None,
+            "currency": obj.get("currency") if obj.get("currency") is not None else CartCurrency.XXX,
+            "subtotals": [CartCartSubtotal.from_dict(_item) for _item in obj["subtotals"]] if obj.get("subtotals") is not None else None,
+            "total": CartMoney.from_dict(obj["total"]) if obj.get("total") is not None else None,
+            "totalDue": CartMoney.from_dict(obj["totalDue"]) if obj.get("totalDue") is not None else None,
             "vatIncluded": obj.get("vatIncluded"),
-            "billingAddress": CartPostalAddress.from_dict(obj.get("billingAddress")) if obj.get("billingAddress") is not None else None,
-            "shippingAddress": CartPostalAddress.from_dict(obj.get("shippingAddress")) if obj.get("shippingAddress") is not None else None,
-            "status": obj.get("status"),
-            "customer": CartCustomerData.from_dict(obj.get("customer")) if obj.get("customer") is not None else None,
+            "billingAddress": CartPostalAddress.from_dict(obj["billingAddress"]) if obj.get("billingAddress") is not None else None,
+            "shippingAddress": CartPostalAddress.from_dict(obj["shippingAddress"]) if obj.get("shippingAddress") is not None else None,
+            "status": obj.get("status") if obj.get("status") is not None else CartCartStatus.UNKNOWN,
+            "customer": CartCustomerData.from_dict(obj["customer"]) if obj.get("customer") is not None else None,
             "notes": obj.get("notes"),
             "createdAt": obj.get("createdAt"),
             "updatedAt": obj.get("updatedAt")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

@@ -17,8 +17,6 @@ Method | HTTP request | Description
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_set_custom_price_on_items_request import CartSetCustomPriceOnItemsRequest
 from cart.rest import ApiException

@@ -18,17 +18,13 @@ import pprint
 import re  # noqa: F401
 import json
 
-
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
-from pydantic import BaseModel, StrictBool, StrictFloat, StrictInt, StrictStr
-from pydantic import Field
 from cart.models.cart_item_custom_price import CartItemCustomPrice
 from cart.models.cart_money import CartMoney
 from cart.models.cart_product_configuration_step import CartProductConfigurationStep
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
+from typing import Optional, Set
+from typing_extensions import Self
 
 class CartCartItem(BaseModel):
     """
@@ -56,13 +52,14 @@ class CartCartItem(BaseModel):
     promotion_grns: Optional[List[StrictStr]] = Field(default=None, alias="promotionGrns")
     additional_info: Optional[StrictStr] = Field(default=None, alias="additionalInfo")
     product_data: Optional[StrictStr] = Field(default=None, alias="productData")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "productGrn", "productConfiguration", "quantity", "price", "listPrice", "discount", "basePrice", "customPrice", "vatAmount", "vatPercentage", "vatInaccurate", "vatCalculated", "localizedName", "productCode", "productSku", "imageGrn", "variantOptions", "isVirtual", "promotionGrns", "additionalInfo", "productData"]
 
-    model_config = {
-        "populate_by_name": True,
-        "validate_assignment": True,
-        "protected_namespaces": (),
-    }
+    model_config = ConfigDict(
+        populate_by_name=True,
+        validate_assignment=True,
+        protected_namespaces=(),
+    )
 
 
     def to_str(self) -> str:
@@ -75,7 +72,7 @@ class CartCartItem(BaseModel):
         return json.dumps(self.to_dict())
 
     @classmethod
-    def from_json(cls, json_str: str) -> Self:
+    def from_json(cls, json_str: str) -> Optional[Self]:
         """Create an instance of CartCartItem from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
@@ -88,19 +85,23 @@ class CartCartItem(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
+        excluded_fields: Set[str] = set([
+            "additional_properties",
+        ])
+
         _dict = self.model_dump(
             by_alias=True,
-            exclude={
-            },
+            exclude=excluded_fields,
             exclude_none=True,
         )
         # override the default output from pydantic by calling `to_dict()` of each item in product_configuration (list)
         _items = []
         if self.product_configuration:
-            for _item in self.product_configuration:
-                if _item:
-                    _items.append(_item.to_dict())
+            for _item_product_configuration in self.product_configuration:
+                if _item_product_configuration:
+                    _items.append(_item_product_configuration.to_dict())
             _dict['productConfiguration'] = _items
         # override the default output from pydantic by calling `to_dict()` of price
         if self.price:
@@ -120,10 +121,15 @@ class CartCartItem(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of vat_amount
         if self.vat_amount:
             _dict['vatAmount'] = self.vat_amount.to_dict()
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: Dict) -> Self:
+    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
         """Create an instance of CartCartItem from a dict"""
         if obj is None:
             return None
@@ -134,14 +140,14 @@ class CartCartItem(BaseModel):
         _obj = cls.model_validate({
             "id": obj.get("id"),
             "productGrn": obj.get("productGrn"),
-            "productConfiguration": [CartProductConfigurationStep.from_dict(_item) for _item in obj.get("productConfiguration")] if obj.get("productConfiguration") is not None else None,
+            "productConfiguration": [CartProductConfigurationStep.from_dict(_item) for _item in obj["productConfiguration"]] if obj.get("productConfiguration") is not None else None,
             "quantity": obj.get("quantity"),
-            "price": CartMoney.from_dict(obj.get("price")) if obj.get("price") is not None else None,
-            "listPrice": CartMoney.from_dict(obj.get("listPrice")) if obj.get("listPrice") is not None else None,
-            "discount": CartMoney.from_dict(obj.get("discount")) if obj.get("discount") is not None else None,
-            "basePrice": CartMoney.from_dict(obj.get("basePrice")) if obj.get("basePrice") is not None else None,
-            "customPrice": CartItemCustomPrice.from_dict(obj.get("customPrice")) if obj.get("customPrice") is not None else None,
-            "vatAmount": CartMoney.from_dict(obj.get("vatAmount")) if obj.get("vatAmount") is not None else None,
+            "price": CartMoney.from_dict(obj["price"]) if obj.get("price") is not None else None,
+            "listPrice": CartMoney.from_dict(obj["listPrice"]) if obj.get("listPrice") is not None else None,
+            "discount": CartMoney.from_dict(obj["discount"]) if obj.get("discount") is not None else None,
+            "basePrice": CartMoney.from_dict(obj["basePrice"]) if obj.get("basePrice") is not None else None,
+            "customPrice": CartItemCustomPrice.from_dict(obj["customPrice"]) if obj.get("customPrice") is not None else None,
+            "vatAmount": CartMoney.from_dict(obj["vatAmount"]) if obj.get("vatAmount") is not None else None,
             "vatPercentage": obj.get("vatPercentage"),
             "vatInaccurate": obj.get("vatInaccurate"),
             "vatCalculated": obj.get("vatCalculated"),
@@ -155,6 +161,11 @@ class CartCartItem(BaseModel):
             "additionalInfo": obj.get("additionalInfo"),
             "productData": obj.get("productData")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

@@ -20,8 +20,6 @@ List payment methods
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_list_payment_methods_request import CartListPaymentMethodsRequest
 from cart.models.cart_list_payment_methods_response import CartListPaymentMethodsResponse
@@ -107,8 +105,6 @@ Set SetPayments
 * Api Key Authentication (Authorization):
 
 ```python
-import time
-import os
 import cart
 from cart.models.cart_set_payments_request import CartSetPaymentsRequest
 from cart.models.cart_set_payments_response import CartSetPaymentsResponse

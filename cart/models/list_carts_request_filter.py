@@ -18,16 +18,12 @@ import pprint
 import re  # noqa: F401
 import json
 
-
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from pydantic import BaseModel, StrictStr
-from pydantic import Field
 from cart.models.list_carts_request_filter_cart_status import ListCartsRequestFilterCartStatus
 from cart.models.list_carts_request_filter_date import ListCartsRequestFilterDate
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
+from typing import Optional, Set
+from typing_extensions import Self
 
 class ListCartsRequestFilter(BaseModel):
     """
@@ -39,16 +35,17 @@ class ListCartsRequestFilter(BaseModel):
     customer_lastnames: Optional[List[StrictStr]] = Field(default=None, alias="customerLastnames")
     customer_phones: Optional[List[StrictStr]] = Field(default=None, alias="customerPhones")
     cart_ids: Optional[List[StrictStr]] = Field(default=None, alias="cartIds")
-    cart_status: Optional[ListCartsRequestFilterCartStatus] = Field(default=None, alias="cartStatus")
+    cart_status: Optional[ListCartsRequestFilterCartStatus] = Field(default=ListCartsRequestFilterCartStatus.UNKNOWN, alias="cartStatus")
     created_at: Optional[List[ListCartsRequestFilterDate]] = Field(default=None, alias="createdAt")
     agent_grn: Optional[StrictStr] = Field(default=None, alias="agentGrn")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["searchTerms", "customerEmails", "customerFirstnames", "customerLastnames", "customerPhones", "cartIds", "cartStatus", "createdAt", "agentGrn"]
 
-    model_config = {
-        "populate_by_name": True,
-        "validate_assignment": True,
-        "protected_namespaces": (),
-    }
+    model_config = ConfigDict(
+        populate_by_name=True,
+        validate_assignment=True,
+        protected_namespaces=(),
+    )
 
 
     def to_str(self) -> str:
@@ -61,7 +58,7 @@ class ListCartsRequestFilter(BaseModel):
         return json.dumps(self.to_dict())
 
     @classmethod
-    def from_json(cls, json_str: str) -> Self:
+    def from_json(cls, json_str: str) -> Optional[Self]:
         """Create an instance of ListCartsRequestFilter from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
@@ -74,24 +71,33 @@ class ListCartsRequestFilter(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
+        excluded_fields: Set[str] = set([
+            "additional_properties",
+        ])
+
         _dict = self.model_dump(
             by_alias=True,
-            exclude={
-            },
+            exclude=excluded_fields,
             exclude_none=True,
         )
         # override the default output from pydantic by calling `to_dict()` of each item in created_at (list)
         _items = []
         if self.created_at:
-            for _item in self.created_at:
-                if _item:
-                    _items.append(_item.to_dict())
+            for _item_created_at in self.created_at:
+                if _item_created_at:
+                    _items.append(_item_created_at.to_dict())
             _dict['createdAt'] = _items
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: Dict) -> Self:
+    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
         """Create an instance of ListCartsRequestFilter from a dict"""
         if obj is None:
             return None
@@ -106,10 +112,15 @@ class ListCartsRequestFilter(BaseModel):
             "customerLastnames": obj.get("customerLastnames"),
             "customerPhones": obj.get("customerPhones"),
             "cartIds": obj.get("cartIds"),
-            "cartStatus": obj.get("cartStatus"),
-            "createdAt": [ListCartsRequestFilterDate.from_dict(_item) for _item in obj.get("createdAt")] if obj.get("createdAt") is not None else None,
+            "cartStatus": obj.get("cartStatus") if obj.get("cartStatus") is not None else ListCartsRequestFilterCartStatus.UNKNOWN,
+            "createdAt": [ListCartsRequestFilterDate.from_dict(_item) for _item in obj["createdAt"]] if obj.get("createdAt") is not None else None,
             "agentGrn": obj.get("agentGrn")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 
